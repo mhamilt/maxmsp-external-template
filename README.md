@@ -80,11 +80,15 @@ If you have already coded a ton of DSP C++ classes for something like JUCE, you 
 Demonstrates using `extern "C"` to write wrappers for pre-existing c++ classes. you need only write wrapper functions for public class methods or anything that needs to be called directly in `C`
 
 
-## Objc and max dk
+## Objc and Max SDK
 
+For utilising Objective C classes, and therefore exposing the Cocoa API there are a couple of approches.
 
-other linker flags:  -framework MaxAudioAPI -framework JitterAPI $(C74_SYM_LINKER_FLAGS) -Xlinker -U -Xlinker _objc_loadClassref
+### Compile as Objective C
 
-Need to link to CoreBluetooth.framework in Build Phases -> Link Bundle with Libraries.
+To compile as Objective C, then in Xcode you can simply change the file extension of main to `.m`.
 
-The -all_load flag under "Other Linker Flags" will cause "duplicate symbol" errors. (Use -ObjC instead.)
+#### Draw backs
+
+- Without re-writing the SDK, ARC will have to be switched off
+- As such: to compiler flags you will need to add `other linker flags:  -framework MaxAudioAPI -framework JitterAPI $(C74_SYM_LINKER_FLAGS) -Xlinker -U -Xlinker _objc_loadClassref`
