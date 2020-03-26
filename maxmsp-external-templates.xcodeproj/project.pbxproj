@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		583DCAD4242CBA3F00F108D5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 583DCAD3242CBA3F00F108D5 /* main.m */; };
 		58567A42242A0A0A00271066 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 58567A39242A0A0A00271066 /* main.c */; };
 		58567A49242A0A0A00271066 /* MattsOscsCinterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58567A3E242A0A0A00271066 /* MattsOscsCinterface.cpp */; };
 		58567A4B242A0A0A00271066 /* MattsOscs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58567A3F242A0A0A00271066 /* MattsOscs.cpp */; };
@@ -15,6 +16,8 @@
 
 /* Begin PBXFileReference section */
 		2FBBEAE508F335360078DB84 /* mymspextern~.mxo */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "mymspextern~.mxo"; sourceTree = BUILT_PRODUCTS_DIR; };
+		583DCAD1242CB9F500F108D5 /* mspobjc~.mxo */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "mspobjc~.mxo"; sourceTree = BUILT_PRODUCTS_DIR; };
+		583DCAD3242CBA3F00F108D5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		5848C4AB241B9E3500406164 /* mspcpp~.mxo */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "mspcpp~.mxo"; sourceTree = BUILT_PRODUCTS_DIR; };
 		58567A39242A0A0A00271066 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		58567A3C242A0A0A00271066 /* MattsOscsCinterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MattsOscsCinterface.h; sourceTree = "<group>"; };
@@ -41,6 +44,7 @@
 			children = (
 				2FBBEAE508F335360078DB84 /* mymspextern~.mxo */,
 				5848C4AB241B9E3500406164 /* mspcpp~.mxo */,
+				583DCAD1242CB9F500F108D5 /* mspobjc~.mxo */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,12 +57,21 @@
 			path = utilities;
 			sourceTree = "<group>";
 		};
+		583DCAD2242CBA0E00F108D5 /* mspobjc */ = {
+			isa = PBXGroup;
+			children = (
+				583DCAD3242CBA3F00F108D5 /* main.m */,
+			);
+			path = mspobjc;
+			sourceTree = "<group>";
+		};
 		58567A37242A0A0A00271066 /* src */ = {
 			isa = PBXGroup;
 			children = (
 				5868BA8D241A6C1600152060 /* maxmspsdk.xcconfig */,
 				58567A38242A0A0A00271066 /* mymspextern */,
 				58567A3A242A0A0A00271066 /* mspcpp */,
+				583DCAD2242CBA0E00F108D5 /* mspobjc */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -112,6 +125,23 @@
 			productReference = 2FBBEAE508F335360078DB84 /* mymspextern~.mxo */;
 			productType = "com.apple.product-type.bundle";
 		};
+		583DCAC7242CB9F500F108D5 /* mspobjc~ */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 583DCACE242CB9F500F108D5 /* Build configuration list for PBXNativeTarget "mspobjc~" */;
+			buildPhases = (
+				583DCAC8242CB9F500F108D5 /* ShellScript */,
+				583DCAC9242CB9F500F108D5 /* Sources */,
+				583DCACD242CB9F500F108D5 /* Rez */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "mspobjc~";
+			productName = iterator;
+			productReference = 583DCAD1242CB9F500F108D5 /* mspobjc~.mxo */;
+			productType = "com.apple.product-type.bundle";
+		};
 		5848C4A0241B9E3500406164 /* mspcpp~ */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5848C4A8241B9E3500406164 /* Build configuration list for PBXNativeTarget "mspcpp~" */;
@@ -153,12 +183,20 @@
 			targets = (
 				2FBBEAD608F335360078DB84 /* max-external */,
 				5848C4A0241B9E3500406164 /* mspcpp~ */,
+				583DCAC7242CB9F500F108D5 /* mspobjc~ */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXRezBuildPhase section */
 		2FBBEADF08F335360078DB84 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		583DCACD242CB9F500F108D5 /* Rez */ = {
 			isa = PBXRezBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -176,6 +214,23 @@
 
 /* Begin PBXShellScriptBuildPhase section */
 		583DCAC6242CB76F00F108D5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nif [[ ! \"$(ls -A max-sdk)\" ]]; then git submodule update --init;fi\n\n";
+		};
+		583DCAC8242CB9F500F108D5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -217,6 +272,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				58567A42242A0A0A00271066 /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		583DCAC9242CB9F500F108D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				583DCAD4242CBA3F00F108D5 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +417,59 @@
 			};
 			name = Deployment;
 		};
+		583DCACF242CB9F500F108D5 /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5868BA8D241A6C1600152060 /* maxmspsdk.xcconfig */;
+			buildSettings = {
+				C74_SYM_LINKER_FLAGS = "@$(C74SUPPORT)/max-includes/c74_linker_flags.txt\"";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "$(C74SUPPORT)/max-includes/macho-prefix.pch";
+				INFOPLIST_FILE = "";
+				OTHER_LDFLAGS = (
+					"-framework",
+					MaxAudioAPI,
+					"-framework",
+					JitterAPI,
+					"$(C74_SYM_LINKER_FLAGS)",
+					"-Xlinker",
+					"-U",
+					"-Xlinker",
+					_objc_loadClassref,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.cycling74.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "macos-sdk/MacOSX10.11.sdk";
+			};
+			name = Development;
+		};
+		583DCAD0242CB9F500F108D5 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5868BA8D241A6C1600152060 /* maxmspsdk.xcconfig */;
+			buildSettings = {
+				C74_SYM_LINKER_FLAGS = "@$(C74SUPPORT)/max-includes/c74_linker_flags.txt\"";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_PREFIX_HEADER = "$(C74SUPPORT)/max-includes/macho-prefix.pch";
+				INFOPLIST_FILE = "";
+				OTHER_LDFLAGS = (
+					"-framework",
+					MaxAudioAPI,
+					"-framework",
+					JitterAPI,
+					"$(C74_SYM_LINKER_FLAGS)",
+					"-Xlinker",
+					"-U",
+					"-Xlinker",
+					_objc_loadClassref,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.cycling74.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "macos-sdk/MacOSX10.11.sdk";
+			};
+			name = Deployment;
+		};
 		5848C4A9241B9E3500406164 /* Development */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5868BA8D241A6C1600152060 /* maxmspsdk.xcconfig */;
@@ -402,6 +518,15 @@
 			buildConfigurations = (
 				2FBBEAE108F335360078DB84 /* Development */,
 				2FBBEAE208F335360078DB84 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Development;
+		};
+		583DCACE242CB9F500F108D5 /* Build configuration list for PBXNativeTarget "mspobjc~" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				583DCACF242CB9F500F108D5 /* Development */,
+				583DCAD0242CB9F500F108D5 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Development;
