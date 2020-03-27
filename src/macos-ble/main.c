@@ -1,16 +1,11 @@
 /*
- A template for a basic max external object with more explicit documentation
- 
- See Readme of repository for build instructions.
- Create an Issue on the repository if anything is amiss or you have any suggestion
- - mhamilt Mar 2020
+    Integrate Objective C Corebluetooth class
  */
-
 #include "ext.h"
 #include "ext_obex.h"
 #include "z_dsp.h"
 #include "buffer.h"
-#include "MattsOscsCinterface.h"
+#include "MacosBleCentralC.h"
 //------------------------------------------------------------------------------
 
 /// void* to the complete new Max External class so that it can be used in the class methods
@@ -22,21 +17,15 @@ void* myExternClass;
 //------------------------------------------------------------------------------
 /** @struct
  The MaxMSP object
- @field t_pxobject x_obj
- @field t_symbol* x_arrayname
- @field SineOsc* x_osc pointer to our DSP object. use this with the interfacing C functions
- @field short inletConnection number of connections
  */
 typedef struct _MaxExternalObject
 {
-    ///
     t_pxobject x_obj;
-    ///
     t_symbol* x_arrayname;
-    /// pointer to our DSP object. use this with the interfacing C functions
-    SineOsc* sineOsc;
-    ///
+    MacosBleCentralC* bleCentral;
+    void* float_out;
     short inletConnection;
+    double gain;
 } MaxExternalObject;
 //------------------------------------------------------------------------------
 /// External Object Constructor: use this to setup any variables / properties of your DSP Struct or MaxExternalObject
@@ -50,24 +39,27 @@ void* myExternalConstructor(long arg1)
     {
         post("no arguement\n");
     }
-    
     //--------------------------------------------------------------------------
     MaxExternalObject* maxObjectPtr = (MaxExternalObject*)object_alloc(myExternClass);
-    maxObjectPtr->sineOsc = newSineOsc();
+        
+//    dsp_setup((t_pxobject*)maxObjectPtr, 1);
+    //--------------------------------------------------------------------------
+     inlet_new((t_object*)maxObjectPtr, "float");
+    maxObjectPtr->float_out = outlet_new((t_object*)maxObjectPtr, "float");
     
-    dsp_setup((t_pxobject*)maxObjectPtr, 1);
+    
     //--------------------------------------------------------------------------
-    // inlet_new((t_object*)maxObjectPtr, "signal");
-    outlet_new((t_object*)maxObjectPtr, "signal");
-    //--------------------------------------------------------------------------
+    maxObjectPtr->gain = 1.0;
+    maxObjectPtr->bleCentral = newMacosBleCentralC();
+    
     return maxObjectPtr;
 }
 
 //------------------------------------------------------------------------------
-///
+/// @brief what happens when the object is deleted
 void myExternDestructor(MaxExternalObject* maxObjectPtr)
 {
-    dsp_free((t_pxobject*)maxObjectPtr);
+    post("END");
 }
 //------------------------------------------------------------------------------
 
@@ -93,7 +85,7 @@ void inletAssistant(MaxExternalObject* maxObjectPtr,
             switch (arg)
             {
                 case 0:
-                    sprintf(dstString, "(bang/list/message/float) float sets frequency");
+                    sprintf(dstString, "inlet 1");
                     break;
                 case 1:
                     sprintf(dstString, "inlet 2");
@@ -106,7 +98,7 @@ void inletAssistant(MaxExternalObject* maxObjectPtr,
             switch (arg)
             {
                 case 0:
-                    sprintf(dstString, "(signal) oscillator output");
+                    sprintf(dstString, "outlet 1");
                     break;
                 case 1:
                     sprintf(dstString, "outlet 2");
@@ -119,72 +111,21 @@ void inletAssistant(MaxExternalObject* maxObjectPtr,
 }
 
 //------------------------------------------------------------------------------
-#pragma mark DSP Loop
-/// Main DSP process block, do your DSP here
-/// @param maxObjectPtr
-/// @param dsp64
-/// @param ins double pointer array to sample inlets
-/// @param numins
-/// @param outs double pointer array to sample outlets
-/// @param numouts
-/// @param sampleframes samples per channel
-/// @param flags
-/// @param userparam no idea
-void mspExternalProcessBlock(MaxExternalObject* maxObjectPtr, t_object* dsp64,
-                             double** ins, long numins, double** outs, long numouts,
-                             long sampleframes, long flags, void* userparam)
-
-{
-    //--------------------------------------------------------------------------
-    // DSP loop
-    for (int i = 0; i < numouts; ++i)
-    {
-        for (int s = 0; s < sampleframes; ++s)
-        {
-            outs[0][s] = SineOsc_process(maxObjectPtr->sineOsc) * 0.1;
-        }
-    }
-}
-
-//------------------------------------------------------------------------------
-
-/// Audio DSP setup
-/// @param maxObjectPtr object pointer
-/// @param dsp64
-/// @param count array containing number of connections to an inlet with index [i]
-/// @param samplerate
-/// @param vectorsize
-/// @param flags
-void prepareToPlay(MaxExternalObject* maxObjectPtr, t_object* dsp64, short* count,
-                   double samplerate, long vectorsize, long flags)
-{
-    maxObjectPtr->inletConnection = count[0];
-    SineOsc_setup(maxObjectPtr->sineOsc, samplerate, 440.0);
-    
-    object_method(dsp64,
-                  gensym("dsp_add64"),
-                  maxObjectPtr,
-                  mspExternalProcessBlock,
-                  0,
-                  NULL);
-}
-//------------------------------------------------------------------------------
 
 /// This gets called when we receive a bang
 /// @param maxObjectPtr object pointer
 void onBang(MaxExternalObject* maxObjectPtr)
 {
+    float latestVal = MacosBleCentralC_getLatestValue(maxObjectPtr->bleCentral);
     post("I got a bang!\n");
+    outlet_float(maxObjectPtr->float_out, latestVal);
 }
-
-//------------------------------------------------------------------------------
-
 /// This gets called when we receive a float
 /// @param maxObjectPtr object pointer
 /// @param floatIn
 void onFloat(MaxExternalObject* maxObjectPtr, double floatIn)
 {
-    SineOsc_setFrequency(maxObjectPtr->sineOsc, floatIn);
+    maxObjectPtr->gain = floatIn;
 }
 //------------------------------------------------------------------------------
 
@@ -200,22 +141,7 @@ void onList(MaxExternalObject* maxObjectPtr,
 {
     for (int i = 0; i < argc; ++i)
     {
-        t_atom *ap = &argv[i];
-        switch (atom_gettype(ap))
-        {
-        case A_LONG:
-            post("type: int, index: %ld, value: %ld",i+1, atom_getlong(ap));
-            break;
-        case A_FLOAT:
-            post("type: float, index: %ld, value: %.2f",i+1, atom_getfloat(ap));
-            break;
-        case A_SYM:
-            post("type: message , index: %ld, value: %s",i+1, atom_getsym(ap)->s_name);
-            break;
-        default:
-            post("%ld: unknown atom type (%ld)", i+1, atom_gettype(ap));
-            break;
-        }
+        atom_getfloatarg(i, argc, argv);
     }
 }
 
@@ -251,12 +177,12 @@ void coupleMethodsToExternal( t_class* c)
     class_addmethod(c, (method)inletAssistant,"assist", A_CANT,0);
     class_addmethod(c, (method)onPrintMessage, "print", 0);
     class_addmethod(c, (method)onAnyMessage, "anything", A_GIMME, 0);
-    class_addmethod(c, (method)prepareToPlay, "dsp64", A_CANT, 0);
 }
 //------------------------------------------------------------------------------
 int C74_EXPORT main(void)
 {
-    t_class* c = class_new("mspcpp~",
+    post("hello");
+    t_class* c = class_new("macos-ble",
                            (method)myExternalConstructor,
                            (method)myExternDestructor,
                            (short)sizeof(MaxExternalObject),
