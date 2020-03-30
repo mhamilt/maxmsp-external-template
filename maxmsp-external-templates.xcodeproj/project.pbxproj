@@ -399,7 +399,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nif [[ ! \"$(ls -A max-sdk)\" ]]; then git submodule update --init;fi\n\n";
+			shellScript = "if [[ ! \"$(ls -A max-sdk)\" ]]; then \ngit submodule update --init;\necho \"error: Max SDK not present, try building again\"\nexit 1\nfi\n";
 		};
 		583DCAC8242CB9F500F108D5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -433,7 +433,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nif [[ ! \"$(ls -A max-sdk)\" ]]; then git submodule update --init;fi\n\n";
+			shellScript = "if [[ ! \"$(ls -A max-sdk)\" ]]; then \ngit submodule update --init;\necho \"error: Max SDK not present, try building again\"\nexit 1\nfi\n";
 		};
 		58F0ABFB242E3110004FE028 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -450,7 +450,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nif [[ ! \"$(ls -A max-sdk)\" ]]; then git submodule update --init;fi\n\n";
+			shellScript = "if [[ ! \"$(ls -A max-sdk)\" ]]; then \ngit submodule update --init;\necho \"error: Max SDK not present, try building again\"\nexit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
