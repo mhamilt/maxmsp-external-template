@@ -26,7 +26,7 @@
 <CBCentralManagerDelegate, CBPeripheralDelegate>
 {
     bool shouldScan;
-    CBPeripheral *peripheral;
+//    CBPeripheral *peripheral;
     CBUUID *serviceUuid;
     CBUUID *characteristicUuid;
     //    NSString *manufacturer;
@@ -34,9 +34,11 @@
 //------------------------------------------------------------------------------
 @property (retain) NSMutableArray *discoveredPeripherals;
 @property (strong, nonatomic) CBCentralManager * manager;
+@property (strong, nonatomic) CBPeripheral *peripheral;
+@property (strong, atomic) CBService *currentService;
 @property (atomic) int count;
 @property (atomic) float latestValue;
-@property (retain, nonatomic) dispatch_queue_t bleQueue;
+@property (strong, nonatomic) dispatch_queue_t bleQueue;
 //@property (nonatomic) CBUUID *serviceUuid;
 //@property (nonatomic) CBUUID *characteristicUuid;
 @property (copy) NSString *manufacturer;

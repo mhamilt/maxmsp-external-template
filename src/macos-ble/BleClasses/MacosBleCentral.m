@@ -14,12 +14,12 @@
 - (instancetype)initWithQueue: (dispatch_queue_t) centralDelegateQueue
 {
     return [self initWithQueue: centralDelegateQueue
-//                 serviceToScan: nil
-//          characteristicToRead: nil];
-                 serviceToScan: [CBUUID UUIDWithString: @"29D7544B-6870-45A4-BB7E-D981535F4525"]
-          characteristicToRead: [CBUUID UUIDWithString: @"B81672D5-396B-4803-82C2-029D34319015"]];
+                 serviceToScan: nil
+          characteristicToRead: nil];
+    //                      characteristicToRead: [CBUUID UUIDWithString: @"B81672D5-396B-4803-82C2-029D34319015"]];
+    //                 serviceToScan: [CBUUID UUIDWithString: @"6E400001-B5A3-F393-E0A9-E50E24DCCA9E"]
 }
-
+//------------------------------------------------------------------------------
 - (instancetype)initWithQueue: (dispatch_queue_t) centralDelegateQueue
                 serviceToScan: (CBUUID *) scanServiceId
          characteristicToRead: (CBUUID *) characteristicId
@@ -42,14 +42,6 @@
 }
 
 //------------------------------------------------------------------------------
-- (void)dealloc
-{    
-    [_manager stopScan];
-    //    [_manager dealloc]
-//    [super dealloc];
-}
-
-//------------------------------------------------------------------------------
 #pragma mark Manager Methods
 
 - (void)centralManager:(CBCentralManager *)central
@@ -59,19 +51,20 @@
 {
     NSMutableArray *peripherals =  [self mutableArrayValueForKey:@"discoveredPeripherals"];
     const char* deviceName = [[aPeripheral name] cStringUsingEncoding:NSASCIIStringEncoding];
-    if (deviceName)
-        printf("Found: %s\n", deviceName);
+    post("Found: %s\n", deviceName);
     
     if ([[aPeripheral name] isEqualToString: @"BaronVonTigglestest"])
     {
-        [self connectToPeripheral: aPeripheral];
+        post("Connecting\n");
+        _peripheral = aPeripheral;
+        [_manager connectPeripheral:_peripheral options:nil];
+        [_manager stopScan];
     }
     
-    if( ![self.discoveredPeripherals containsObject:aPeripheral] && deviceName)
+    if( ![self.discoveredPeripherals containsObject:aPeripheral])
     {
         [peripherals addObject:aPeripheral];
         [self.discoveredPeripherals addObject:aPeripheral];
-//        [self connectToPeripheral: aPeripheral];
     }
 }
 
@@ -80,6 +73,7 @@
    didConnectPeripheral: (CBPeripheral *)aPeripheral
 {
     post("Connected to iPhone\n");
+    NSLog(@"NAME: %@\n",[aPeripheral name]);
     [aPeripheral setDelegate:self];
     [aPeripheral discoverServices:nil];
 }
@@ -94,8 +88,8 @@
     /* If there are any known devices, automatically connect to it.*/
     if([peripherals count] >=1)
     {
-        peripheral = [peripherals objectAtIndex:0];
-        [_manager connectPeripheral:peripheral
+        _peripheral = [peripherals objectAtIndex:0];
+        [_manager connectPeripheral:_peripheral
                             options:nil];
     }
 }
@@ -103,7 +97,8 @@
 //------------------------------------------------------------------------------
 - (void)centralManagerDidUpdateState:(CBCentralManager *)manager
 {
-    if ([manager state] == CBManagerStatePoweredOn && shouldScan)
+    post("State Update");
+    if ([manager state] == CBCentralManagerStatePoweredOn && shouldScan)
     {
         [self startScan];
     }
@@ -115,15 +110,18 @@ didDisconnectPeripheral: (CBPeripheral *)aPeripheral
                   error: (NSError *)error
 {
     post("didDisconnectPeripheral\n");
+    [self startScan];
 }
 //------------------------------------------------------------------------------
 /// Invoked whenever the central manager fails to create a connection with the peripheral.
 - (void) centralManager: (CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)aPeripheral
                   error:(NSError *)error
 {
-     post("didFailToConnectPeripheral\n");
+    post("didFailToConnectPeripheral\n");
     NSLog(@"Fail to connect to peripheral: %@ with error = %@", aPeripheral, [error localizedDescription]);
 }
+
+
 //------------------------------------------------------------------------------
 - (void) startScan
 {
@@ -140,57 +138,37 @@ didDisconnectPeripheral: (CBPeripheral *)aPeripheral
                                          options: nil];
     }
 }
-
-- (void) connectToPeripheral: (CBPeripheral *)aPeripheral
-{
-    post("connect");
-    [_manager stopScan];
-    peripheral = aPeripheral;
-    NSDictionary *connectOptions = @{
-        CBConnectPeripheralOptionNotifyOnConnectionKey: @YES,
-        CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES,
-        CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
-        //        CBConnectPeripheralOptionEnableTransportBridgingKey:,
-        //        CBConnectPeripheralOptionRequiresANCS:,
-        CBConnectPeripheralOptionStartDelayKey: @0
-    };
-    [_manager connectPeripheral:peripheral options:connectOptions];
-}
 //------------------------------------------------------------------------------
 #pragma mark Peripheral Methods
 
+- (void) peripheral: (CBPeripheral *)peripheral
+didDiscoverIncludedServicesForService:(CBService *)service
+              error:(NSError *)error
+{
+    post("didDiscoverIncludedServicesForService");
+}
+//------------------------------------------------------------------------------
 // Invoked upon completion of a -[discoverServices:] request.
 // Discover available characteristics on interested services
 - (void) peripheral: (CBPeripheral *)aPeripheral
-didDiscoverServices:(NSError *)error
+didDiscoverServices: (NSError *)error
 {
     post("didDiscoverServices\n");
-    if (error)
-    {
-        post("error\n");
-    }
     for (CBService *aService in aPeripheral.services)
     {
-        
-#if DEBUG_MODE
-        NSLog(@"Service found with UUID: %@", aService.UUID);
-        post("Service found with UUID: %s", [[aService.UUID UUIDString] cStringUsingEncoding:NSASCIIStringEncoding]);
-#endif
-//        [aPeripheral discoverCharacteristics:@[characteristicUuid]
-//                                  forService:aService];
+        post("Service %s\n", [[[aService UUID] UUIDString] cStringUsingEncoding:NSASCIIStringEncoding]);
         [aPeripheral discoverCharacteristics: nil
                                   forService: aService];
     }
 }
 //------------------------------------------------------------------------------
-
 // Invoked upon completion of a -[discoverCharacteristics:forService:] request.
 // Perform appropriate operations on interested characteristics
 - (void) peripheral: (CBPeripheral *)aPeripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
     post("didDiscoverCharacteristicsForService\n");
     
-    if (error)
+    if (error != nil)
     {
         post("error\n");
     }
@@ -201,46 +179,48 @@ didDiscoverServices:(NSError *)error
 #endif
         if (aChar.properties & CBCharacteristicPropertyRead)
         {
-            [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
-            //                [aPeripheral readValueForCharacteristic:aChar];
-            //                [aPeripheral readValueForDescriptor:nil]
+            [aPeripheral readValueForCharacteristic:aChar];
+            //            [aPeripheral setNotifyValue:YES forCharacteristic:aChar];
         }
     }
 }
 //------------------------------------------------------------------------------
-
+- (void) peripheral:(CBPeripheral *)peripheral
+didUpdateValueForDescriptor:(CBDescriptor *)descriptor
+              error:(NSError *)error
+{
+    post("didUpdateValueForDescriptor\n");
+}
+//------------------------------------------------------------------------------
 // Invoked upon completion of a -[readValueForCharacteristic:] request or on the reception of a notification/indication.
 - (void) peripheral: (CBPeripheral *)aPeripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
     post("didUpdateValueForCharacteristic\n");
     [self printCharacteristicData:characteristic];
 }
-
+//------------------------------------------------------------------------------
 - (void) printCharacteristicData: (CBCharacteristic *)characteristic
 {
     post("new float\n");
 #if DEBUG_MODE
     NSLog(@"Read Characteristics: %@", characteristic.UUID);
     NSLog(@"%@", [characteristic description]);
-#endif
-    NSData * updatedValue = characteristic.value;
-//    _latestValue = [[[NSString alloc] initWithUTF8String:(char*)updatedValue.bytes] floatValue];
-//    post("new float: %.5f\n",_latestValue);
-//    printf("%s\n",(char*)updatedValue.bytes);
+#endif    
 }
-
+//------------------------------------------------------------------------------
 - (void) peripheral: (CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(CBDescriptor *)descriptor error:(NSError *)error
 {
-    
+    post("didDiscoverDescriptorsForCharacteristic");
 }
-
+//------------------------------------------------------------------------------
 - (void)peripheral: (CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    
+    post("didUpdateNotificationStateForCharacteristic");
 }
+//------------------------------------------------------------------------------
 - (void)peripheral: (CBPeripheral *)peripheral didModifyServices:(NSArray<CBService *> *)invalidatedServices
 {
-//    exit(0);
+    //    exit(0);
     post("Service Modified\n");
     [_manager cancelPeripheralConnection:peripheral];
     [self startScan];

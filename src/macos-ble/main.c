@@ -22,7 +22,8 @@ typedef struct _MaxExternalObject
 {
     t_pxobject x_obj;
     t_symbol* x_arrayname;
-    MacosBleCentralC* bleCentral;
+//    MacosBleCentralC* bleCentral;
+    MacosBleCentralRef bleCentral;
     void* float_out;
     short inletConnection;
     double gain;
@@ -50,7 +51,8 @@ void* myExternalConstructor(long arg1)
     
     //--------------------------------------------------------------------------
     maxObjectPtr->gain = 1.0;
-    maxObjectPtr->bleCentral = newMacosBleCentralC();
+//    maxObjectPtr->bleCentral = newMacosBleCentralC();    
+    maxObjectPtr->bleCentral = MacosBleCentralRefCreate();
     
     return maxObjectPtr;
 }

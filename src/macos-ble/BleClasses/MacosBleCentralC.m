@@ -30,3 +30,21 @@ void MacosBleCentralC_release(MacosBleCentralC *t)
     CFRelease(t);
 }
 //------------------------------------------------------------------------------
+
+
+MacosBleCentralRef MacosBleCentralRefCreate(void)
+{
+     return CFBridgingRetain([MacosBleCentral new]);
+}
+void MacosBleCentralRefStartScan(MacosBleCentralRef t)
+{
+    [(__bridge MacosBleCentral *)t startScan];
+}
+void MacosBleCentralRefStopScan(MacosBleCentralRef t)
+{
+    [(__bridge MacosBleCentral *)t stopScan];
+}
+float MacosBleCentralRefGetLatestValue(MacosBleCentralRef t)
+{
+    return [(__bridge MacosBleCentral *)t latestValue];
+}

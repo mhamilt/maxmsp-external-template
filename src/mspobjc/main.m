@@ -9,6 +9,8 @@
 #include "ext_obex.h"
 #include "z_dsp.h"
 #include "buffer.h"
+
+#import "MacosBleCentral.h"
 //------------------------------------------------------------------------------
 
 /// void* to the complete new Max External class so that it can be used in the class methods
@@ -16,14 +18,8 @@
 /// @code t_class* c = class_new(...);
 /// myExternClass = c;
 void* myExternClass;
-
+MacosBleCentral *b;
 //------------------------------------------------------------------------------
-/// DSP object properties
-typedef struct _MyDspStruct
-{
-    float a;
-} MyDspStruct;
-
 /** @struct
  The MaxMSP object
  */
@@ -31,7 +27,7 @@ typedef struct _MaxExternalObject
 {
     t_pxobject x_obj;
     t_symbol* x_arrayname;
-    MyDspStruct a;
+    MacosBleCentral* bleCentral;
     short inletConnection;
     double gain;
 } MaxExternalObject;
@@ -53,8 +49,10 @@ void* myExternalConstructor(long arg1)
     //--------------------------------------------------------------------------
     // inlet_new((t_object*)maxObjectPtr, "signal");
     outlet_new((t_object*)maxObjectPtr, "signal");
-    //--------------------------------------------------------------------------
+     //--------------------------------------------------------------------------
     maxObjectPtr->gain = 1.0;
+    maxObjectPtr->bleCentral = [[MacosBleCentral alloc] init];
+    [maxObjectPtr->bleCentral retain];
     return maxObjectPtr;
 }
 
@@ -247,20 +245,22 @@ void coupleMethodsToExternal( t_class* c)
 //------------------------------------------------------------------------------
 int C74_EXPORT main(void)
 {
-    post("hello");
-    t_class* c = class_new("mymspextern~",
+    post("Start");
+//    b = [[MacosBleCentral alloc] init];
+    
+    t_class* c = class_new("mspobjc~",
                            (method)myExternalConstructor,
                            (method)myExternDestructor,
                            (short)sizeof(MaxExternalObject),
                            0L,
                            A_DEFLONG,
                            0);
-    
+
     coupleMethodsToExternal(c);
-    
+
     class_dspinit(c);
     class_register(CLASS_BOX, c);
-    
+
     myExternClass = c;
     
     return 0;
